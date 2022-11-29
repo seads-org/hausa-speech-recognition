@@ -1,0 +1,47 @@
+jobs:
+  TrainSpeechRecognition:
+    resources:
+      instance-type: A4000
+    uses: script@v1
+    with:
+      script: |-
+        wget https://raw.githubusercontent.com/seads-org/hausa-speech-recognition/main/scripts/run_speech_recognition_seq2seq.py
+        pip install -U torchaudio librosa jiwer datasets transformers huggingface_hub evaluate wandb
+        python run_speech_recognition_seq2seq.py \
+          --model_name_or_path="openai/whisper-$MODEL_TYPE" \
+          --dataset_name="mozilla-foundation/common_voice_11_0" \
+          --dataset_config_name="ha" \
+          --language="hausa" \
+          --train_split_name="train+validation" \
+          --eval_split_name="test" \
+          --max_steps="5000" \
+          --output_dir="./whisper-$MODEL_TYPE-ha" \
+          --per_device_train_batch_size="16" \
+          --gradient_accumulation_steps="2" \
+          --per_device_eval_batch_size="16" \
+          --logging_steps="25" \
+          --learning_rate="1e-5" \
+          --warmup_steps="500" \
+          --evaluation_strategy="steps" \
+          --eval_steps="1000" \
+          --save_strategy="steps" \
+          --save_steps="1000" \
+          --generation_max_length="225" \
+          --preprocessing_num_workers="16" \
+          --length_column_name="input_length" \
+          --max_duration_in_seconds="30" \
+          --text_column_name="sentence" \
+          --freeze_feature_encoder="False" \
+          --hf_auth_token="$HF_ACCESS_TOKEN"
+          --gradient_checkpointing \
+          --group_by_length \
+          --fp16 \
+          --overwrite_output_dir \
+          --do_train \
+          --do_eval \
+          --predict_with_generate
+      image: paperspace/gradient-base:pt112-tf29-jax0314-py39-20220803
+    env:
+      WANDB_API_KEY: secret:WANDB_API_KEY
+      HF_ACCESS_TOKEN: secret:HUGGING_FACE_ACCESS_TOKEN
+      MODEL_TYPE: "tiny"
