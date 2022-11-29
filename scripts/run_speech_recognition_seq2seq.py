@@ -281,6 +281,7 @@ def main():
         k: (v if any(isinstance(v, t) for t in [int, float, bool]) else str(v))
         for k,v in params.items() if v
     }
+    del params['hf_auth_token']
 
     wandb.login() # relies on WANDB_API_KEY env var
     run = wandb.init(project="FEM", job_type="training", config=params)
