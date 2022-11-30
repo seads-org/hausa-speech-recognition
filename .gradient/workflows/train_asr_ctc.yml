@@ -1,0 +1,42 @@
+jobs:
+  TrainSpeechRecognitionCTC:
+    resources:
+      instance-type: A4000
+    uses: script@v1
+    with:
+      script: |-
+        wget https://raw.githubusercontent.com/seads-org/hausa-speech-recognition/main/scripts/run_speech_recognition_ctc.py
+        pip install -U torchaudio librosa jiwer datasets huggingface_hub evaluate wandb
+        pip install git+https://github.com/huggingface/transformers
+        python run_speech_recognition_ctc.py \
+          --dataset_name="mozilla-foundation/common_voice_11_0" \
+          --model_name_or_path="facebook/wav2vec2-xls-r-$MODEL_TYPE" \
+          --dataset_config_name="ha" \
+          --output_dir="./wav2vec2-common_voice-ha" \
+          --overwrite_output_dir \
+          --num_train_epochs="45" \
+          --per_device_train_batch_size="16" \
+          --gradient_accumulation_steps="2" \
+          --learning_rate="3e-4" \
+          --warmup_steps="500" \
+          --evaluation_strategy="steps" \
+          --text_column_name="sentence" \
+          --length_column_name="input_length" \
+          --save_steps="400" \
+          --eval_steps="100" \
+          --layerdrop="0.0" \
+          --save_total_limit="3" \
+          --use_auth_token="$HF_ACCESS_TOKEN" \
+          --report_to="wandb" \
+          --freeze_feature_encoder \
+          --gradient_checkpointing \
+          --chars_to_ignore , ? . ! - \; \: \" “ % ’ ʻ ” � \' \
+          --fp16 \
+          --group_by_length \
+          --do_train --do_eval
+
+      image: paperspace/gradient-base:pt112-tf29-jax0314-py39-20220803
+    env:
+      WANDB_API_KEY: secret:WANDB_API_KEY
+      HF_ACCESS_TOKEN: secret:HUGGING_FACE_ACCESS_TOKEN
+      MODEL_TYPE: "300m"
