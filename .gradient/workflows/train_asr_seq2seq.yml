@@ -6,7 +6,8 @@ jobs:
     with:
       script: |-
         wget https://raw.githubusercontent.com/seads-org/hausa-speech-recognition/main/scripts/run_speech_recognition_seq2seq.py
-        pip install -U torchaudio librosa jiwer datasets transformers huggingface_hub evaluate wandb
+        pip install -U torchaudio librosa jiwer datasets huggingface_hub evaluate wandb
+        pip install git+https://github.com/huggingface/transformers
         python run_speech_recognition_seq2seq.py \
           --model_name_or_path="openai/whisper-$MODEL_TYPE" \
           --dataset_name="mozilla-foundation/common_voice_11_0" \
@@ -27,12 +28,13 @@ jobs:
           --save_strategy="steps" \
           --save_steps="1000" \
           --generation_max_length="225" \
-          --preprocessing_num_workers="16" \
+          --preprocessing_num_workers="1" \
           --length_column_name="input_length" \
           --max_duration_in_seconds="30" \
           --text_column_name="sentence" \
           --freeze_feature_encoder="False" \
-          --hf_auth_token="$HF_ACCESS_TOKEN"
+          --hf_auth_token="$HF_ACCESS_TOKEN" \
+          --run_name="whisper-$MODEL_TYPE-$(date "+%F-%H:%M:%S")" \
           --gradient_checkpointing \
           --group_by_length \
           --fp16 \

@@ -27,6 +27,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
 
 import datasets
 import torch
@@ -283,7 +284,8 @@ def main():
     del params['hf_auth_token']
 
     wandb.login() # relies on WANDB_API_KEY env var
-    run = wandb.init(project="FEM", job_type="training", config=params)
+    proj_name = model_args.model_name_or_path.split('/')[-1] + "-ha-" + datetime.strftime(datetime.now(), "%F-%H:%M:%S")
+    wandb.init(project="FEM", job_type="training", config=params, name=proj_name)
 
     # 2. Setup logging
     logging.basicConfig(
