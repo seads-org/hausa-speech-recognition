@@ -151,6 +151,9 @@ class DataTrainingArguments:
     dataset_name: str = field(
         metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
+    use_auth_token: str = field(
+        metadata={"help": "HF token"},
+    )
     dataset_config_name: str = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
@@ -230,15 +233,6 @@ class DataTrainingArguments:
                 " preprocessing errors out in distributed training due to timeout. In this case, one should run the"
                 " preprocessing in a non-distributed setup with `preprocessing_only=True` so that the cached datasets"
                 " can consequently be loaded in distributed training"
-            )
-        },
-    )
-    use_auth_token: bool = field(
-        default=False,
-        metadata={
-            "help": (
-                "If :obj:`True`, will use the token generated when running"
-                ":obj:`huggingface-cli login` as HTTP bearer authorization for remote files."
             )
         },
     )
