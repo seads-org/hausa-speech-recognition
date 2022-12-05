@@ -407,8 +407,11 @@ def main():
     del params['use_auth_token']
 
     wandb.login() # relies on WANDB_API_KEY env var
-    proj_name = model_args.model_name_or_path.split('/')[-1] + "-ha-" + datetime.strftime(datetime.now(), "%F-%H:%M:%S")
-    run = wandb.init(project="FEM", job_type="training", config=params, name=proj_name)
+
+    model_name = model_args.model_name_or_path.split('/')[-1]
+    dataset_name = data_args.dataset_name.split('/')[-1]
+    run_name = model_name.replace('wav2vec-', '') + dataset_name + datetime.strftime(datetime.now(), "%F-%H:%M:%S")
+    run = wandb.init(project="FEM", job_type="training", config=params, name=run_name)
 
     # Setup logging
     logging.basicConfig(
@@ -604,11 +607,11 @@ def main():
     # via the `feature_extractor`
 
     # make sure that dataset decodes audio with correct sampling rate
-    dataset_sampling_rate = next(iter(raw_datasets.values())).features[data_args.audio_column_name].sampling_rate
-    if dataset_sampling_rate != feature_extractor.sampling_rate:
-        raw_datasets = raw_datasets.cast_column(
-            data_args.audio_column_name, datasets.features.Audio(sampling_rate=feature_extractor.sampling_rate)
-        )
+    # dataset_sampling_rate = next(iter(raw_datasets.values())).features[data_args.audio_column_name].sampling_rate
+    # if dataset_sampling_rate != feature_extractor.sampling_rate:
+    raw_datasets = raw_datasets.cast_column(
+        data_args.audio_column_name, datasets.features.Audio(sampling_rate=feature_extractor.sampling_rate)
+    )
 
     # derive max & min input length for sample rate & max duration
     max_input_length = data_args.max_duration_in_seconds * feature_extractor.sampling_rate
