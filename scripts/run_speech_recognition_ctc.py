@@ -408,7 +408,7 @@ def main():
 
     wandb.login() # relies on WANDB_API_KEY env var
     proj_name = model_args.model_name_or_path.split('/')[-1] + "-ha-" + datetime.strftime(datetime.now(), "%F-%H:%M:%S")
-    wandb.init(project="FEM", job_type="training", config=params, name=proj_name)
+    run = wandb.init(project="FEM", job_type="training", config=params, name=proj_name)
 
     # Setup logging
     logging.basicConfig(
@@ -778,6 +778,10 @@ def main():
         trainer.push_to_hub(**kwargs)
     else:
         trainer.create_model_card(**kwargs)
+
+    art = wandb.Artifact(model_args.model_name_or_path.split('/')[-1], type="model")
+    art.add_dir(training_args.output_dir)
+    run.log_artifact(art)
 
     wandb.finish()
 
