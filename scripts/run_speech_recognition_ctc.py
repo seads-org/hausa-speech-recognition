@@ -410,7 +410,7 @@ def main():
 
     model_name = model_args.model_name_or_path.split('/')[-1]
     dataset_name = data_args.dataset_name.split('/')[-1]
-    run_name = model_name.replace('wav2vec-', '') + dataset_name + datetime.strftime(datetime.now(), "%F-%H:%M:%S")
+    run_name = model_name.replace('wav2vec2-', '') + '-' + dataset_name + datetime.strftime(datetime.now(), "%F-%H:%M:%S")
     run = wandb.init(project="FEM", job_type="training", config=params, name=run_name)
 
     # Setup logging
